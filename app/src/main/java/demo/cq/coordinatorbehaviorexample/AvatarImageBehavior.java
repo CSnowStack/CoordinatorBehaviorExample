@@ -33,7 +33,6 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
         mContext = context;
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AvatarImageBehavior);
-            mStartHeight = a.getDimension(R.styleable.AvatarImageBehavior_startHeight, 0);
             mFinalHeight = a.getDimension(R.styleable.AvatarImageBehavior_finalHeight, 0);
             mFactor=a.getFloat(R.styleable.AvatarImageBehavior_factor,0);
             a.recycle();
@@ -94,6 +93,9 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
      * @param dependency toolbar
      */
     private void maybeInitProperties(CircleImageView child, View dependency) {
+
+        if(mStartHeight==0)
+            mStartHeight=child.getHeight();
 
         if (mStartYPosition == 0) //设置初始的Y点 跟Toolbar一样
             mStartYPosition =mStartToolbarPosition= dependency.getTop();
