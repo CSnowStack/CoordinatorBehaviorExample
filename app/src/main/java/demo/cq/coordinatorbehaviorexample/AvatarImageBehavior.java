@@ -2,6 +2,7 @@ package demo.cq.coordinatorbehaviorexample;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -37,7 +38,7 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AvatarImageBehavior);
             mFinalHeight = a.getDimension(R.styleable.AvatarImageBehavior_finalHeight, 0);
             mFactor = a.getFloat(R.styleable.AvatarImageBehavior_factor, 0);
-            mUserSystemTintManager = a.getBoolean(R.styleable.AvatarImageBehavior_userSystemTintManager, false);
+            mUserSystemTintManager = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT&&(a.getBoolean(R.styleable.AvatarImageBehavior_userSystemTintManager, false));
             a.recycle();
         }
     }
