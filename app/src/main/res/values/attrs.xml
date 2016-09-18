@@ -3,6 +3,5 @@
     <declare-styleable name="AvatarImageBehavior">
         <attr name="finalHeight" format="dimension"/>
         <attr name="factor" format="float"/>
-        <attr name="userSystemTintManager" format="boolean"/>
     </declare-styleable>
 </resources>

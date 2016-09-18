@@ -2,7 +2,6 @@ package demo.cq.coordinatorbehaviorexample;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -30,15 +29,12 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
     private float mStartToolbarPosition; // Toolbar 开始的Y点,最大可移动的距离
     private float mChangeBehaviorPoint;//改变行为的点,由向上,变为向右向上
     private float mChangeLastYMove;//改变行为时的位置
-    private boolean mUserSystemTintManager;//是否使用了 systemTintManager
-    private float mStatusBarHeight;
     public AvatarImageBehavior(Context context, AttributeSet attrs) {
         mContext = context;
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AvatarImageBehavior);
             mFinalHeight = a.getDimension(R.styleable.AvatarImageBehavior_finalHeight, 0);
             mFactor = a.getFloat(R.styleable.AvatarImageBehavior_factor, 0);
-            mUserSystemTintManager = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT&&(a.getBoolean(R.styleable.AvatarImageBehavior_userSystemTintManager, false));
             a.recycle();
         }
     }
@@ -53,7 +49,7 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
     public boolean onDependentViewChanged(CoordinatorLayout parent, CircleImageView child, View dependency) {
         maybeInitProperties(child, dependency);
 
-        float expandedPercentageFactor =( dependency.getTop()-mStatusBarHeight) / mStartToolbarPosition;//移动的比例,越来越小
+        float expandedPercentageFactor =dependency.getTop() / mStartToolbarPosition;//移动的比例,越来越小
         //移动的比例,小于设置的比例,
         if (expandedPercentageFactor < mChangeBehaviorPoint) { //也就是剩余的距离比原本头像的高度小,开始缩小头像
             //计算要移动的比例
@@ -100,14 +96,11 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
         if (mStartHeight == 0)
             mStartHeight = child.getHeight();
 
-        if(mUserSystemTintManager&&mStatusBarHeight==0)
-            mStatusBarHeight=getStatusBarHeight();
-
         if (mStartYPosition == 0) //设置初始的Y点 跟Toolbar一样
-            mStartYPosition = mStartToolbarPosition = dependency.getTop()+mStatusBarHeight;
+            mStartYPosition = mStartToolbarPosition = dependency.getTop();
 
         if (mFinalYPosition == 0) //最终y点
-            mFinalYPosition = (dependency.getHeight() / 2)+mStatusBarHeight;//最终y值 在　toolbar 的中间
+            mFinalYPosition = dependency.getHeight() / 2;//最终y值 在　toolbar 的中间
 
 
 
@@ -126,14 +119,5 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
     }
 
 
-    public int getStatusBarHeight() {
-        int result = 0;
-        int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
-
-        if (resourceId > 0) {
-            result = mContext.getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
-    }
 
 }
