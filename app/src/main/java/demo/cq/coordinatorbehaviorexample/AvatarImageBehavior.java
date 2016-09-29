@@ -26,9 +26,7 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
     private float mStartHeight; // 开始时 头像的高度
     private float mFinalHeight; // 结束时 头像的高度
     private float mFactor;//越大,向左上移动的时机就越快
-    private float mStartToolbarPosition; // Toolbar 开始的Y点,最大可移动的距离
     private float mChangeBehaviorPoint;//改变行为的点,由向上,变为向右向上
-    private float mChangeLastYMove;//改变行为时的位置
     public AvatarImageBehavior(Context context, AttributeSet attrs) {
         mContext = context;
         if (attrs != null) {
@@ -49,11 +47,15 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
     public boolean onDependentViewChanged(CoordinatorLayout parent, CircleImageView child, View dependency) {
         maybeInitProperties(child, dependency);
 
-        float expandedPercentageFactor =dependency.getTop() / mStartToolbarPosition;//移动的比例,越来越小
-        //移动的比例,小于设置的比例,
-        if (expandedPercentageFactor < mChangeBehaviorPoint) { //也就是剩余的距离比原本头像的高度小,开始缩小头像
+        //移动的位置,没有到改变行为的位置
+        float position=dependency.getTop()-child.getHeight()/2;
+        if(position<0){
+            position=0;
+        }
+        if (position <= mChangeBehaviorPoint) {
+
             //计算要移动的比例
-            float heightFactor = (mChangeBehaviorPoint - expandedPercentageFactor) / mChangeBehaviorPoint;
+            float heightFactor = (mChangeBehaviorPoint - position) / mChangeBehaviorPoint;
 
             //计算头像宽高的变化
             float heightToSubtract = ((mStartHeight - mFinalHeight) * heightFactor);
@@ -64,19 +66,26 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
             lp.height = (int) (mStartHeight - heightToSubtract);
             child.setLayoutParams(lp);
 
-            float distanceXToSubtract = (mStartXPosition - mFinalXPosition) * heightFactor + (child.getHeight() / 2);
-            child.setX(mStartXPosition - distanceXToSubtract);
-            float distanceYToSubtract = (mStartYPosition - mChangeLastYMove) * (1 - heightFactor);
+            float distanceXToSubtract=mFinalXPosition+(mStartXPosition-mFinalXPosition)*(1-heightFactor);
 
-            if (distanceYToSubtract < (mFinalYPosition - mFinalHeight / 2)) {//位置在最后位置的上面,则设置为最后的位置
-                distanceYToSubtract = mFinalYPosition - mFinalHeight / 2;
+
+            //y轴移动头像
+            float distanceYToSubtract = (mChangeBehaviorPoint) * (1 - heightFactor);
+
+            if (distanceYToSubtract < mFinalYPosition) {//位置在最后位置的上面,则设置为最后的位置
+                distanceYToSubtract = mFinalYPosition;
             }
+            if(position==0){
+                distanceYToSubtract=mFinalYPosition;
+                distanceXToSubtract=mFinalXPosition;
+            }
+
+            child.setX(distanceXToSubtract);
             child.setY(distanceYToSubtract);
         } else {//向上移动
-            float distanceYToSubtract = ((mStartYPosition - mFinalYPosition) * (1f - expandedPercentageFactor)) + mStartHeight / 2;//按比例计算位置
 
-            child.setX(mStartXPosition - mStartHeight / 2);
-            child.setY(mStartYPosition - distanceYToSubtract);
+            child.setX(mStartXPosition);
+            child.setY(position);
             CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) child.getLayoutParams();
             lp.width = (int) mStartHeight;
             lp.height = (int) mStartHeight;
@@ -96,28 +105,28 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
         if (mStartHeight == 0)
             mStartHeight = child.getHeight();
 
-        if (mStartYPosition == 0) //设置初始的Y点 跟Toolbar一样
-            mStartYPosition = mStartToolbarPosition = dependency.getTop();
+        if (mStartYPosition == 0) //设置初始的Y点
+            mStartYPosition  = dependency.getTop();
 
         if (mFinalYPosition == 0) //最终y点
-            mFinalYPosition = dependency.getHeight() / 2;//最终y值 在　toolbar 的中间
-
-
+            mFinalYPosition = (dependency.getHeight()/2-mFinalHeight/2);
 
         if (mStartXPosition == 0)//起始点
-            mStartXPosition = child.getLeft() + (child.getWidth() / 2);
+            mStartXPosition = child.getLeft();
 
-        if (mFinalXPosition == 0)
-            mFinalXPosition = dependency.findViewById(R.id.lyt_title).getLeft() + 5;//返回键的右边,也就是ryt的左边
+        if (mFinalXPosition == 0) {
+            mFinalXPosition = dependency.findViewById(R.id.lyt_title).getLeft()-dip2px(mContext,2*((Toolbar)dependency).getTitleMarginTop())+10;//返回键的右边,也就是ryt的左边
+        }
 
-        if (mChangeBehaviorPoint == 0)
-            mChangeBehaviorPoint = (mStartHeight - mFinalHeight) * (1 + mFactor) / mStartYPosition;//标记头像高度所占的要位移距离的比例
+        if (mChangeBehaviorPoint == 0)//头像变化的高度,加上改变因子,getTop<this 应该改变行为
+            mChangeBehaviorPoint = (mStartHeight - mFinalHeight) * (1 + mFactor);
 
-        if (mChangeLastYMove == 0)
-            mChangeLastYMove = (mStartYPosition - mFinalYPosition) * (1f - mChangeBehaviorPoint) + mStartHeight / 2;
 
     }
-
+    public static int dip2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
 
 
 }

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,21 +29,30 @@ public class MainActivity extends AppCompatActivity implements AppBarLayout.OnOf
     private AppBarLayout mAppBarLayout;
     private Toolbar mToolbar;
     private SystemBarTintManager _mTintManager;
+    private FrameLayout mFtyTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        setTranslucent();
+        setTranslucent();
         bindActivity();
 
         mAppBarLayout.addOnOffsetChangedListener(this);
         mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         mToolbar.inflateMenu(R.menu.menu_main);
         startAlphaAnimation(mTitle, 0, View.INVISIBLE);
+
+        mFtyTitle.post(new Runnable() {
+            @Override
+            public void run() {
+                mFtyTitle.setPadding(0,mToolbar.getHeight()/2,0,0);
+            }
+        });
     }
 
     private void bindActivity() {
+        mFtyTitle=(FrameLayout)findViewById(R.id.main_framelayout_title);
         mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
         mTitle = (TextView) findViewById(R.id.main_textview_title);
         mTitleContainer = (LinearLayout) findViewById(R.id.main_linearlayout_title);
@@ -57,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements AppBarLayout.OnOf
         _mTintManager = new SystemBarTintManager(this);
         _mTintManager.setNavigationBarTintEnabled(true);// 激活导航栏设置
         _mTintManager.setStatusBarTintEnabled(true);
-        _mTintManager.setStatusBarTintResource(android.R.color.holo_blue_light);
+        _mTintManager.setStatusBarTintResource(R.color.primary);
 
     }
 
