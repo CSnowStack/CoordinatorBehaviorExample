@@ -115,17 +115,13 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
             mStartXPosition = child.getLeft();
 
         if (mFinalXPosition == 0) {
-            mFinalXPosition = dependency.findViewById(R.id.lyt_title).getLeft()-dip2px(mContext,2*((Toolbar)dependency).getTitleMarginTop())+10;//返回键的右边,也就是ryt的左边
+            mFinalXPosition = dependency.findViewById(R.id.lyt_title).getLeft()-((Toolbar)dependency).getContentInsetStart()+5;//返回键的右边,也就是ryt的左边
         }
 
         if (mChangeBehaviorPoint == 0)//头像变化的高度,加上改变因子,getTop<this 应该改变行为
             mChangeBehaviorPoint = (mStartHeight - mFinalHeight) * (1 + mFactor);
 
 
-    }
-    public static int dip2px(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
     }
 
 
